@@ -464,6 +464,7 @@
 				CA0A204B1ED97D500035C467 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CA0A20611ED97D790035C467 /* Build configuration list for PBXNativeTarget "SwitchItExtension" */ = {
 			isa = XCConfigurationList;
@@ -472,6 +473,7 @@
 				CA0A20631ED97D790035C467 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
