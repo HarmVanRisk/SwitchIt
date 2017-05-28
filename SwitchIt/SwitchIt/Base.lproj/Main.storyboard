@@ -124,7 +124,7 @@
                                     <constraint firstAttribute="height" constant="123" id="C6t-O6-XbE"/>
                                     <constraint firstAttribute="width" constant="123" id="CWt-8F-B1G"/>
                                 </constraints>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="t7L-rL-ogK"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="SwitchItLogo" id="t7L-rL-ogK"/>
                             </imageView>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RMt-7Q-gbH">
                                 <rect key="frame" x="18" y="153" width="127" height="46"/>
@@ -223,4 +223,7 @@
             <point key="canvasLocation" x="75" y="654.5"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="SwitchItLogo" width="512" height="512"/>
+    </resources>
 </document>

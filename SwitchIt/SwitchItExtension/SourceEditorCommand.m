@@ -8,6 +8,11 @@
 
 #import "SourceEditorCommand.h"
 
+/*
+ TODO: Handle objc enums that are all on one line
+ TODO: Clean code and make it more readable
+ */
+
 @implementation SourceEditorCommand
 
 - (void)performCommandWithInvocation:(XCSourceEditorCommandInvocation *)invocation completionHandler:(void (^)(NSError * _Nullable nilOrError))completionHandler {
