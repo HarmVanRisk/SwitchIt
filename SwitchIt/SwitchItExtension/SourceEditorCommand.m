@@ -14,11 +14,6 @@
     XCSourceTextRange *range = invocation.buffer.selections.firstObject;
     //+1 to make it inclusive of the last selected line
     NSUInteger length = range.end.line - range.start.line + 1;
-    if (length<1) {
-        //Ideally display an alert here
-        completionHandler(nil);
-        return;
-    }
     NSArray *selectedLines = [invocation.buffer.lines subarrayWithRange:NSMakeRange(range.start.line, length)];
     BOOL isSwiftEnum = NO;
     for (NSString *enumLine in selectedLines) {
@@ -28,7 +23,9 @@
         }
     }
     NSString *fullSwitch = isSwiftEnum ? [self expandedSwitchInSwift:invocation withSelectedLines:selectedLines] : [self expandedSwitchInObjectiveC:invocation withSelectedLines:selectedLines];
-    [invocation.buffer.lines insertObject:fullSwitch atIndex:range.end.line+2];
+    if (fullSwitch.length > 0) {
+        [invocation.buffer.lines insertObject:fullSwitch atIndex:range.end.line+2];
+    }
     completionHandler(nil);
 }
 
@@ -36,16 +33,28 @@
     NSMutableCharacterSet *setToBeTrimed = [NSMutableCharacterSet characterSetWithCharactersInString:@","];
     [setToBeTrimed formUnionWithCharacterSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSString *tabIndent = [@"" stringByPaddingToLength:invocation.buffer.tabWidth withString:@" " startingAtIndex:0];
-    NSString *fullSwitch = @"switch(<#Value#>) {\n";
+    NSString *switchContents = @"";
     for (NSString *line in selectedLines) {
         BOOL isBeginningOrEnding = [line containsString:@"{"] || [line containsString:@"}"];
         if (!isBeginningOrEnding) {
             NSString *foundCase = line;
             foundCase = [foundCase stringByTrimmingCharactersInSet:setToBeTrimed];
-            fullSwitch = [fullSwitch stringByAppendingString:[NSString stringWithFormat:@"%@case %@: {\n%@%@break;\n%@}\n",tabIndent,foundCase,tabIndent,tabIndent,tabIndent]];
+            if ([foundCase containsString:@"="]) {
+                NSRange rangeOfFoundEquals = [foundCase rangeOfString:@"="];
+                foundCase = [foundCase stringByReplacingCharactersInRange:NSMakeRange(rangeOfFoundEquals.location, foundCase.length - rangeOfFoundEquals.location) withString:@""];
+            }
+            if (foundCase.length > 0) {
+                switchContents = [switchContents stringByAppendingString:[NSString stringWithFormat:@"%@case %@: {\n%@%@break;\n%@}\n",tabIndent,foundCase,tabIndent,tabIndent,tabIndent]];
+            }
         }
     }
-    fullSwitch = [fullSwitch stringByAppendingString:@"}"];
+    NSString *fullSwitch = @"";
+    if (switchContents.length > 0) {
+        fullSwitch = @"switch(<#Value#>) {\n";
+        fullSwitch = [fullSwitch stringByAppendingString:switchContents];
+        fullSwitch = [fullSwitch stringByAppendingString:@"}"];
+    }
+    
     return fullSwitch;
 }
 
@@ -59,12 +68,18 @@
             NSString *foundCase = line;
             foundCase = [foundCase stringByReplacingOccurrencesOfString:@"case " withString:@""];
             foundCase = [foundCase stringByTrimmingCharactersInSet:setToBeTrimed];
-            if ([foundCase containsString:@","]) {
-                for (NSString *foundSwitchOnOneLine in [foundCase componentsSeparatedByString:@", "]) {
-                    fullSwitch = [fullSwitch stringByAppendingString:[NSString stringWithFormat:@"%@case .%@: \n%@%@break\n",tabIndent,foundSwitchOnOneLine,tabIndent,tabIndent]];
+            if ([foundCase containsString:@"="]) {
+                NSRange rangeOfFoundEquals = [foundCase rangeOfString:@"="];
+                foundCase = [foundCase stringByReplacingCharactersInRange:NSMakeRange(rangeOfFoundEquals.location, foundCase.length - rangeOfFoundEquals.location) withString:@""];
+            }
+            if (foundCase.length > 0) {
+                if ([foundCase containsString:@","]) {
+                    for (NSString *foundSwitchOnOneLine in [foundCase componentsSeparatedByString:@", "]) {
+                        fullSwitch = [fullSwitch stringByAppendingString:[NSString stringWithFormat:@"%@case .%@: \n%@%@break\n",tabIndent,foundSwitchOnOneLine,tabIndent,tabIndent]];
+                    }
+                } else {
+                    fullSwitch = [fullSwitch stringByAppendingString:[NSString stringWithFormat:@"%@case .%@: \n%@%@break\n",tabIndent,foundCase,tabIndent,tabIndent]];
                 }
-            } else {
-                fullSwitch = [fullSwitch stringByAppendingString:[NSString stringWithFormat:@"%@case .%@: \n%@%@break\n",tabIndent,foundCase,tabIndent,tabIndent]];
             }
         }
     }
