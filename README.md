@@ -28,3 +28,6 @@ From there you can assign any keyboard shortcut you like.
 - Run the app, then you can quit it but dont delete it
 - Go to System Preferences -> Extensions -> Xcode Source Editor and enable the SwitchIt extension
 - The menu-item should now be available from Xcode's Editor menu
+
+# License
+MIT, see LICENSE
